@@ -11,9 +11,9 @@ ml Bioinformatics  bcl2fastq2/2.20.0.422-oxq6lf3
 ###################################
 
 # variables/files input:
-bcl_dic=$( $1 )     # Directory with bcl files: 
+bcl_dic=$1     # Directory with bcl files: 
 
-SampleIndex=$( $2 ) # SampleSheet.csv
+SampleIndex=$2 # SampleSheet.csv
 
  bcl2fastq --use-bases-mask=Y151n*,I8n*,Y16,Y151n* \
   --create-fastq-for-index-reads \
