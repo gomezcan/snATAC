@@ -16,11 +16,11 @@ doCall(){
 	base=$1
 	qual=$2
 	threads=$2
-	'''
+	
 	# filter for mapped reads only
 	echo "retaining only mapped reads ..."
 	samtools view -@ ${threads} -bhq ${qual} -f 3 ${base}.bam > qc.${base}.mq${qual}.bam
-	'''
+	
 	# run picard
 	
 	echo "removing dups - $base ..."
@@ -34,7 +34,7 @@ doCall(){
 		ASSUME_SORT_ORDER=coordinate \
 		USE_JDK_DEFLATER=true \
 		USE_JDK_INFLATER=true
-	'''
+	
 	# fix barcodes
 	echo "fixing barcodes and removing multi-mapped reads ..."
 	perl fixBC.pl ${base}.mq${qual}.rmdup.bam ${base} | samtools view -bhS - > ${base}.BC.mq${qual}.rmdup.bam
@@ -43,7 +43,7 @@ doCall(){
 	echo "making Tn5 bed files ..."
 	perl makeTn5bed.pl ${base}.BC.mq${qual}.rmdup.bam | sort -k1,1 -k2,2n - | uniq - > ${base}.tn5.mq${qual}.bed
 	gzip ${base}.tn5.mq${qual}.bed
-	'''
+	
 
 }
 
