@@ -24,7 +24,7 @@ doCall(){
 	# run picard
 	
 	echo "removing dups - $base ..."
-	java -Xmx100g -jar $EBROOTPICARD/picard.jar MarkDuplicates \
+	java -Xmx100g -jar $PICARDLIB/picard.jar MarkDuplicates \
 		MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1000 \
 		REMOVE_DUPLICATES=true \
 		METRICS_FILE=${base}.metrics \
