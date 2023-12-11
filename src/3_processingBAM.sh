@@ -15,20 +15,25 @@ doCall(){
 	# input
 	base=$1
 	qual=$2
-	threads=$2
+	threads=$3
 	
 	# filter for mapped reads only
 	echo "retaining only mapped reads ..."
 	samtools view -@ ${threads} -bhq ${qual} -f 3 ${base}.bam > qc.${base}.mq${qual}.bam
-	
+
+ 	# clean BC names
+	echo "cleaning BC names - $base ..."
+	samtools view -@ 5 -h qc.${base}.mq${qual}.bam | \
+		sed 's@\(CB:Z:[ACGT]\{16\}\)-1@\1@' | \
+		samtools view -@ 5 -b -o qc.${base}.mq${qual}.bcClean.bam
+  
 	# run picard
-	
 	echo "removing dups - $base ..."
 	java -Xmx100g -jar $PICARDLIB/picard.jar MarkDuplicates \
 		MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1000 \
 		REMOVE_DUPLICATES=true \
 		METRICS_FILE=${base}.metrics \
-		I=qc.${base}.mq${qual}.bam \
+		I=qc.${base}.mq${qual}.bcClean.bam \
 		O=qc.${base}.mq${qual}.rmdup.bam \
 		BARCODE_TAG=CB \
 		ASSUME_SORT_ORDER=coordinate \
