@@ -42,12 +42,12 @@ doCall(){
 	
 	# fix barcodes
 	echo "fixing barcodes and removing multi-mapped reads ..."
-	perl fixBC.pl ${base}.mq${qual}.rmdup.bam ${base} | samtools view -bhS - > ${base}.BC.mq${qual}.rmdup.bam
+	perl fixBC.pl qc.${base}.mq${qual}.rmdup.bam ${base} | samtools view -bhS - > qc.${base}.BC.mq${qual}.rmdup.bam
 
 	# make Tn5 bed files
 	echo "making Tn5 bed files ..."
-	perl makeTn5bed.pl ${base}.BC.mq${qual}.rmdup.bam | sort -k1,1 -k2,2n - | uniq - > ${base}.tn5.mq${qual}.bed
-	gzip ${base}.tn5.mq${qual}.bed
+	perl makeTn5bed.pl wc.${base}.BC.mq${qual}.rmdup.bam | sort -k1,1 -k2,2n - | uniq - > qc.${base}.tn5.mq${qual}.bed
+	pigz ${base}.tn5.mq${qual}.bed
 	
 
 }
