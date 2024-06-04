@@ -15,7 +15,7 @@ bcl_dic=$1     # Directory with bcl files:
 
 SampleIndex=$2 # SampleSheet.csv
 
- bcl2fastq --use-bases-mask=Y151n*,I8n*,Y16,Y151n* \
+ bcl2fastq --use-bases-mask=Y150n*,I8n*,Y16,Y150n* \
   --create-fastq-for-index-reads \
   --minimum-trimmed-read-length=8 \
   --mask-short-adapter-reads=8 \
