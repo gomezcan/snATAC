@@ -1,21 +1,21 @@
-#######################################
-####   Summary Genotyping by chr   ####
-#######################################
 
-# Load libraries
 suppressMessages(library(data.table))
 suppressMessages(library(tidyverse))
 suppressMessages(library(ggplot2))
 suppressMessages(library(cowplot))
+#suppressMessages(library(ggpubr))
 
-# Define input
+
 args <- commandArgs(T)
 out <- as.character(args[1])
 
-
+############################
+#### Summary Genotyping ####
+############################
 # load cluster calls from genotyping
 #out <- "Sample_S2_chr10"
 clusters <- as.data.table(read.table(paste0('Pool_', out, "/clusters.tsv"), sep = '\t', header = T))
+
 
 # load cluster assgination
 clusters_id <-read.table(paste0('Pool_', out, "/ref_clust_pearson_correlations.tsv"), sep = '\t', header = T)
@@ -49,11 +49,10 @@ for (j in seq(1:length(clusters$assignment))){
   clusters$assignment[j] <- list_tem
 }
 #clusters
-
+print(".. 1. Done genotype name replacement ..")
 
 # Defined high quality sinlges
-hist(clusters$log_prob_singleton)
-table(clusters$status)
+print(table(clusters$status))
 
 ## Reassigment "unassigned" cell based on: 
 ### 1. log_prob_singleton <= to %75 percentil singlet calls 
@@ -66,11 +65,12 @@ Newsinglet <- subset(clusters, status=="unassigned" & log_prob_singleton <= sing
 
 # remove  genotypes unassigned cell
 Newsinglet <- Newsinglet[grepl("/", Newsinglet$assignment) == F,]
+print(".. 2. Done New singles ..")
 
 # redefine BC in new singlets
 clusters$status[clusters$barcode %in%  Newsinglet$barcode] <- 'singlet'
 
-# Count freq of genopyted by class status
+
 clusters_Freq <- rbind(
   clusters %>% 
     dplyr::filter(status=='singlet')%>%
@@ -83,7 +83,8 @@ clusters_Freq <- rbind(
   
 )
 
-# Plot number of cell by genotype in Singlets
+print(".. 3. Done freq counting ..")
+
 clusters_Freq %>% 
   dplyr::filter(status=='singlet') %>%
   ggplot(aes(x=reorder(assignment, -N), y=N)) +
@@ -95,7 +96,6 @@ clusters_Freq %>%
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))  -> Plot_singlets
 
-# Plot number of cell by genotype in Doublets
 clusters_Freq %>% 
   dplyr::filter(status!='singlet') %>%
   ggplot(aes(x=reorder(assignment, -N), y=N)) +
@@ -107,10 +107,16 @@ clusters_Freq %>%
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))  -> Plot_doublet
 
-Plot_1 <- Plot_singlets / Plot_doublet
+print(".. 4. Done plots ..")
+
+#Plot_1 <- {Plot_singlets/Plot_doublet}
+Plot_1 <- cowplot::plot_grid(Plot_singlets/Plot_doublet)
 
 pdf(paste0("Plots/SingletSummary_", out, ".pdf"), width = 3, height = 4)
 print(Plot_1)
 dev.off()
 
+print(".. 5. Done saving plots ..")
+
 write.table(clusters, paste0("Genotyping_Summary_", out, ".txt"), row.names = F, quote = F, sep = '\t')
+
